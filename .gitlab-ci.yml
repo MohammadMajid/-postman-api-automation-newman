@@ -4,35 +4,31 @@ stages:
   - deploy
 
 pages:
+
   stage: deploy
 
   before_script:
 
     - npm install -g newman
     - npm install -g newman-reporter-htmlextra
-    - npm install -g newman-reporter-junitfull
 
-    # create folders
     - mkdir -p public
     - mkdir -p reports
 
   script:
 
-    - echo "Running Newman..."
+    - echo "Run Newman"
 
     - newman run tests/bookstore.postman_collection.json \
         -e tests/qa.postman_environment.json \
-        --reporters cli,htmlextra,junitfull \
+        --reporters cli,htmlextra,junit \
         --reporter-htmlextra-export public/index.html \
-        --reporter-junitfull-export reports/junit-report.xml
+        --reporter-junit-export reports/junit.xml
 
-    - echo "Verify generated files"
+    - echo "Verify output"
 
-    - ls -la public || true
-    - ls -la reports || true
-
-    # IMPORTANT — avoid job failure if junit missing
-    - test -f reports/junit-report.xml || echo "JUnit report missing"
+    - ls -la public
+    - ls -la reports
 
   artifacts:
 
@@ -42,10 +38,9 @@ pages:
       - public
       - reports
 
-    # SAFE junit upload
     reports:
       junit:
-        - reports/*.xml
+        - reports/junit.xml
 
   rules:
     - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
