@@ -7,9 +7,10 @@ stages:
 variables:
   REPORT_DIR: reports
 
-# ==========================
-# API TEST EXECUTION
-# ==========================
+
+# =====================
+# API TEST JOB
+# =====================
 
 api_tests:
 
@@ -17,19 +18,15 @@ api_tests:
 
   before_script:
 
-    # Java required for Allure
     - apt-get update
     - apt-get install -y openjdk-17-jre
 
     - java -version
 
-    # Newman + reporters
     - npm install -g newman
     - npm install -g newman-reporter-htmlextra
-    - npm install -g newman-reporter-junit
     - npm install -g newman-reporter-allure
 
-    # Allure CLI
     - npm install -g allure-commandline
 
     - mkdir -p $REPORT_DIR
@@ -38,7 +35,7 @@ api_tests:
 
   script:
 
-    - echo "Running Newman API tests..."
+    - echo "Running Newman Tests..."
 
     - newman run tests/bookstore.postman_collection.json \
         -e tests/qa.postman_environment.json \
@@ -72,16 +69,16 @@ api_tests:
         - reports/junit-report.xml
 
 
-# ==========================
-# GITLAB PAGES DEPLOYMENT
-# ==========================
+# =====================
+# PAGES DEPLOYMENT
+# =====================
 
 pages:
 
   stage: deploy
 
   script:
-    - echo "Deploying Allure Dashboard via GitLab Pages"
+    - echo "Deploying GitLab Pages"
 
   artifacts:
     paths:
