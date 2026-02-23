@@ -3,25 +3,61 @@ image: node:18
 stages:
   - api-test
 
+variables:
+  REPORT_DIR: reports
+
 api_tests:
 
   stage: api-test
 
   before_script:
 
+    # Install Newman + reporters
     - npm install -g newman
     - npm install -g newman-reporter-htmlextra
+    - npm install -g newman-reporter-junitfull
+    - npm install -g newman-reporter-json
+    - npm install -g newman-reporter-allure
+
+    # Install Allure CLI
+    - npm install -g allure-commandline
+
+    # Create folders
+    - mkdir -p $REPORT_DIR
+    - mkdir -p allure-results
 
   script:
 
+    - echo "Starting Newman API execution..."
+
     - newman run tests/bookstore.postman_collection.json \
       -e tests/qa.postman_environment.json \
-      --reporters cli,htmlextra \
-      --reporter-htmlextra-export newman-report.html
+      --reporters cli,htmlextra,junitfull,json,allure \
+      --reporter-htmlextra-export $REPORT_DIR/newman-report.html \
+      --reporter-junitfull-export $REPORT_DIR/junit-report.xml \
+      --reporter-json-export $REPORT_DIR/result.json \
+      --reporter-allure-export allure-results
+
+    - echo "Listing Allure Results..."
+    - ls -la allure-results || true
+
+    # Generate Allure Dashboard
+    - echo "Generating Allure Dashboard..."
+    - allure generate allure-results --clean -o allure-report
+
+    - echo "Listing Allure Report..."
+    - ls -la allure-report || true
 
   artifacts:
 
-    paths:
-      - newman-report.html
-
     when: always
+
+    expire_in: 1 week
+
+    paths:
+      - reports/
+      - allure-report/
+
+    reports:
+      junit:
+        - reports/junit-report.xml
