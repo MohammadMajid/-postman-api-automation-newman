@@ -1,55 +1,41 @@
 image: node:18
 
 stages:
-  - api-test
   - deploy
 
-variables:
-  REPORT_DIR: reports
-
-api_tests:
-
-  stage: api-test
+pages:
+  stage: deploy
 
   before_script:
-
     - npm install -g newman
     - npm install -g newman-reporter-htmlextra
     - npm install -g newman-reporter-junitfull
 
     - mkdir -p public
-    - mkdir -p $REPORT_DIR
+    - mkdir -p reports
 
   script:
-
-    - echo "Running Newman..."
+    - echo "Run Newman and build Pages site..."
 
     - newman run tests/bookstore.postman_collection.json \
         -e tests/qa.postman_environment.json \
         --reporters cli,htmlextra,junitfull \
         --reporter-htmlextra-export public/index.html \
-        --reporter-junitfull-export $REPORT_DIR/junit-report.xml
+        --reporter-junitfull-export reports/junit-report.xml
+
+    # Hard checks so deploy never publishes empty output
+    - echo "Verify public output:"
+    - ls -la public
+    - test -f public/index.html
 
   artifacts:
-
     when: always
-
     paths:
       - public
-      - reports/
-
+      - reports
     reports:
       junit:
         - reports/junit-report.xml
 
-
-pages:
-
-  stage: deploy
-
-  script:
-    - echo "Publishing GitLab Pages"
-
-  artifacts:
-    paths:
-      - public
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
