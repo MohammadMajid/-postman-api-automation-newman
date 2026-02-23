@@ -17,9 +17,12 @@ api_tests:
     - npm install -g newman-reporter-htmlextra
     - npm install -g newman-reporter-junitfull
 
+    - mkdir -p public
     - mkdir -p $REPORT_DIR
 
   script:
+
+    - echo "Running Newman..."
 
     - newman run tests/bookstore.postman_collection.json \
         -e tests/qa.postman_environment.json \
@@ -45,11 +48,8 @@ pages:
   stage: deploy
 
   script:
-    - echo "Deploy HTML dashboard"
+    - echo "Publishing GitLab Pages"
 
   artifacts:
     paths:
       - public
-
-  only:
-    - main
