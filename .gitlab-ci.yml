@@ -13,44 +13,19 @@ api_tests:
 
   before_script:
 
-    # Install Java for Allure
-    - apt-get update
-    - apt-get install -y openjdk-17-jre
-
-    - java -version
-
-    # Install Newman + reporters
     - npm install -g newman
     - npm install -g newman-reporter-htmlextra
     - npm install -g newman-reporter-junitfull
-    - npm install -g newman-reporter-allure
-
-    # Install Allure CLI
-    - npm install -g allure-commandline
 
     - mkdir -p $REPORT_DIR
-    - mkdir -p allure-results
 
   script:
 
-    - echo "Running Newman..."
-
     - newman run tests/bookstore.postman_collection.json \
         -e tests/qa.postman_environment.json \
-        --reporters cli,htmlextra,junitfull,allure \
-        --reporter-htmlextra-export $REPORT_DIR/newman-report.html \
-        --reporter-junitfull-export $REPORT_DIR/junit-report.xml \
-        --reporter-allure-export allure-results
-
-    - echo "Check Allure Results"
-
-    - ls -la allure-results
-
-    - echo "Generate Allure Dashboard"
-
-    - allure generate allure-results --clean -o public
-
-    - ls -la public
+        --reporters cli,htmlextra,junitfull \
+        --reporter-htmlextra-export public/index.html \
+        --reporter-junitfull-export $REPORT_DIR/junit-report.xml
 
   artifacts:
 
@@ -70,7 +45,7 @@ pages:
   stage: deploy
 
   script:
-    - echo "Deploy Pages"
+    - echo "Deploy HTML dashboard"
 
   artifacts:
     paths:
