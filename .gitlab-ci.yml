@@ -2,6 +2,7 @@ image: node:18
 
 stages:
   - api-test
+  - deploy
 
 variables:
   REPORT_DIR: reports
@@ -12,62 +13,53 @@ api_tests:
 
   before_script:
 
-    # Install Java (Required for Allure)
     - apt-get update
     - apt-get install -y openjdk-17-jre
 
-    # Verify Java
-    - java -version
-
-    # Install Newman + reporters
     - npm install -g newman
     - npm install -g newman-reporter-htmlextra
     - npm install -g newman-reporter-junitfull
-    - npm install -g newman-reporter-json
     - npm install -g newman-reporter-allure
 
-    # Install Allure CLI
     - npm install -g allure-commandline
 
-    # Create folders
     - mkdir -p $REPORT_DIR
     - mkdir -p allure-results
 
   script:
 
-    - echo "Running Newman..."
-
     - newman run tests/bookstore.postman_collection.json \
       -e tests/qa.postman_environment.json \
-      --reporters cli,htmlextra,junitfull,json,allure \
+      --reporters cli,htmlextra,junitfull,allure \
       --reporter-htmlextra-export $REPORT_DIR/newman-report.html \
       --reporter-junitfull-export $REPORT_DIR/junit-report.xml \
-      --reporter-json-export $REPORT_DIR/result.json \
       --reporter-allure-export allure-results || true
 
-    - echo "Listing Allure Results..."
-    - ls -la allure-results || true
-
-    - echo "Generating Allure Dashboard..."
-
-    - allure generate allure-results --clean -o allure-report || true
-
-    - echo "Listing Reports Folder..."
-    - ls -la $REPORT_DIR || true
-
-    - echo "Listing Allure Report..."
-    - ls -la allure-report || true
+    - allure generate allure-results --clean -o public
 
   artifacts:
 
     when: always
 
-    expire_in: 1 week
-
     paths:
+      - public
       - reports/
-      - allure-report/
 
     reports:
       junit:
         - reports/junit-report.xml
+
+
+pages:
+
+  stage: deploy
+
+  script:
+    - echo "Deploying Allure Dashboard to GitLab Pages"
+
+  artifacts:
+    paths:
+      - public
+
+  only:
+    - main
