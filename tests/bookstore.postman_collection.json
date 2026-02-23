@@ -1,0 +1,328 @@
+{
+  "info": {
+    "_postman_id": "0254d647-504e-4ef4-96a1-75012b58cfab",
+    "name": "Book Store API",
+    "description": "### Welcome to Postman! This is your first collection. \n\nCollections are your starting point for building and testing APIs. You can use this one to:\n\n• Group related requests\n• Test your API in real-world scenarios\n• Document and share your requests\n\nUpdate the name and overview whenever you’re ready to make it yours.\n\n[Learn more about Postman Collections.](https://learning.postman.com/docs/collections/collections-overview/)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "52607794",
+    "_collection_link": "https://go.postman.co/collection/52607794-0254d647-504e-4ef4-96a1-75012b58cfab?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Account Management",
+      "item": [
+        {
+          "name": "/Account/v1/User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Parse response JSON",
+                  "let response = pm.response.json();",
+                  "",
+                  "// Validate Status Code",
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "// Validate userID exists",
+                  "pm.test(\"UserID exists\", function () {",
+                  "    pm.expect(response.userID).to.exist;",
+                  "});",
+                  "",
+                  "// Validate username exists",
+                  "pm.test(\"Username exists\", function () {",
+                  "    pm.expect(response.username).to.exist;",
+                  "});",
+                  "",
+                  "// Set Environment Variables",
+                  "pm.environment.set(\"userID\", response.userID);",
+                  "pm.environment.set(\"username\", response.username);",
+                  "",
+                  "console.log(\"Environment Variables Set\");",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userName\": \"{{$randomEmail}}\",\n  \"password\": \"Password1234!\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://demoqa.com/Account/v1/User",
+              "protocol": "https",
+              "host": [
+                "demoqa",
+                "com"
+              ],
+              "path": [
+                "Account",
+                "v1",
+                "User"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "/Account/v1/GenerateToken",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Validate Status Code",
+                  "pm.test(\"Status Code is 200\", () => {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "// Parse JSON",
+                  "const body = pm.response.json();",
+                  "",
+                  "// Validate authorization success",
+                  "pm.test(\"Authorization successful\", () => {",
+                  "    pm.expect(body.status).to.eql(\"Success\");",
+                  "    pm.expect(body.token).to.exist;",
+                  "});",
+                  "",
+                  "// Set Environment Variables",
+                  "pm.environment.set(\"authToken\", body.token);",
+                  "pm.environment.set(\"tokenExpiry\", body.expires);",
+                  "",
+                  "console.log(\"Token Saved:\", body.token);",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userName\": \"{{username}}\",\n  \"password\": \"Password1234!\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://demoqa.com/Account/v1/GenerateToken",
+              "protocol": "https",
+              "host": [
+                "demoqa",
+                "com"
+              ],
+              "path": [
+                "Account",
+                "v1",
+                "GenerateToken"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "/Account/v1/Authorized",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Validate Status Code",
+                  "pm.test(\"Status Code is 200\", () => {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "// Parse boolean response",
+                  "let response = pm.response.json();",
+                  "",
+                  "pm.test(\"Authorization successful\", function () {",
+                  "    pm.expect(response).to.eql(true);",
+                  "});",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userName\": \"{{username}}\",\n  \"password\": \"Password1234!\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://demoqa.com/Account/v1/Authorized",
+              "protocol": "https",
+              "host": [
+                "demoqa",
+                "com"
+              ],
+              "path": [
+                "Account",
+                "v1",
+                "Authorized"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "/Account/v1/User/",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Validate Status Code",
+                  "pm.test(\"Status code is 200\", () => {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "// Parse JSON",
+                  "const body = pm.response.json();",
+                  "",
+                  "// Validate fields",
+                  "pm.test(\"User response validation\", () => {",
+                  "",
+                  "    pm.expect(body).to.have.property(\"userId\");",
+                  "    pm.expect(body).to.have.property(\"username\");",
+                  "    pm.expect(body.books).to.be.an(\"array\");",
+                  "",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://demoqa.com/Account/v1/User/{{userID}}",
+              "protocol": "https",
+              "host": [
+                "demoqa",
+                "com"
+              ],
+              "path": [
+                "Account",
+                "v1",
+                "User",
+                "{{userID}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete user",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Validate Status Code",
+                  "pm.test(\"Status code is 204\", () => {",
+                  "    pm.response.to.have.status(204);",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://demoqa.com/Account/v1/User/{{userID}}",
+              "protocol": "https",
+              "host": [
+                "demoqa",
+                "com"
+              ],
+              "path": [
+                "Account",
+                "v1",
+                "User",
+                "{{userID}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
