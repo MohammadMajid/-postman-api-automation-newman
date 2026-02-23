@@ -7,61 +7,55 @@ stages:
 variables:
   REPORT_DIR: reports
 
+# ==========================
+# API TEST EXECUTION
+# ==========================
+
 api_tests:
 
   stage: api-test
 
   before_script:
 
-    # Install Java (Required for Allure)
-    # Install Java for Allure
+    # Java required for Allure
     - apt-get update
     - apt-get install -y openjdk-17-jre
 
-    # Verify Java
     - java -version
 
-    # Install Newman + reporters
+    # Newman + reporters
     - npm install -g newman
     - npm install -g newman-reporter-htmlextra
-    - npm install -g newman-reporter-junitfull
+    - npm install -g newman-reporter-junit
     - npm install -g newman-reporter-allure
 
-    # Install Allure CLI
+    # Allure CLI
     - npm install -g allure-commandline
 
-    # Create folders
     - mkdir -p $REPORT_DIR
     - mkdir -p allure-results
+    - mkdir -p public
 
   script:
 
     - echo "Running Newman API tests..."
-    - echo "Running Newman..."
 
     - newman run tests/bookstore.postman_collection.json \
         -e tests/qa.postman_environment.json \
-        --reporters cli,htmlextra,junitfull \
-        --reporters cli,htmlextra,junitfull,allure \
+        --reporters cli,htmlextra,junit,allure \
         --reporter-htmlextra-export $REPORT_DIR/newman-report.html \
-        --reporter-junitfull-export $REPORT_DIR/junit-report.xml
-        --reporter-junitfull-export $REPORT_DIR/junit-report.xml \
-        --reporter-allure-export allure-results
+        --reporter-junit-export $REPORT_DIR/junit-report.xml \
+        --reporter-allure-export allure-results || true
 
-    - echo "Generate Allure Dashboard from JUnit..."
     - echo "Check Allure Results"
+    - ls -la allure-results || true
 
-    # Convert JUnit XML → Allure Dashboard
-    - allure generate $REPORT_DIR --clean -o public || true
-    - ls -la allure-results
-
-    - echo "Listing public folder..."
-    - ls -la public || true
     - echo "Generate Allure Dashboard"
 
-    - allure generate allure-results --clean -o public
+    - allure generate allure-results --clean -o public || true
 
-    - ls -la public
+    - echo "Verify Public Folder"
+    - ls -la public || true
 
   artifacts:
 
@@ -72,15 +66,26 @@ api_tests:
     paths:
       - public
       - reports/
+
+    reports:
+      junit:
+        - reports/junit-report.xml
+
+
+# ==========================
+# GITLAB PAGES DEPLOYMENT
+# ==========================
+
+pages:
+
   stage: deploy
 
   script:
     - echo "Deploying Allure Dashboard via GitLab Pages"
-    - echo "Deploy Pages"
 
   artifacts:
     paths:
       - public
 
-  only:
-    - main
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
