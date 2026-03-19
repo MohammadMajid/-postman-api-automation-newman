@@ -1,18 +1,18 @@
-# 🚀 Enterprise API Automation Framework (GitLab)
+# 🚀 Enterprise API Automation Framework (GitHub)
 
 ⭐ Designed to demonstrate enterprise API automation and DevOps CI/CD practices.
 
-Enterprise-grade API automation framework demonstrating Senior QA Automation and DevOps CI/CD practices using Postman Collections executed via Newman CLI inside GitLab Pipelines.
+Enterprise-grade API automation framework demonstrating Senior QA Automation and DevOps CI/CD practices using Postman Collections executed via Newman CLI inside GitHub Actions.
 This project showcases secure automation workflows, dynamic token handling, and advanced enterprise reporting dashboards.
 
 ## ⭐ Key Features
 
 - ✅ Automated API Validation using Postman Collections
-- ✅ GitLab CI/CD Pipeline Execution
+- ✅ GitHub Actions CI/CD Pipeline Execution
 - ✅ Dynamic Token Management
 - ✅ Secure Secrets Handling
 - ✅ HTML Evidence Reporting
-- ✅ GitLab Native Test Analytics (JUnit)
+- ✅ GitHub Native Test Analytics (JUnit)
 - ✅ JSON Metrics Output for Monitoring Tools
 - ✅ Allure Dashboard Visualization (Graphs + Trends)
 
@@ -20,7 +20,7 @@ This project showcases secure automation workflows, dynamic token handling, and 
 
 - Postman
 - Newman CLI
-- GitLab CI/CD
+- GitHub Actions
 - NodeJS
 - JavaScript
 - Allure Reporting
@@ -31,7 +31,7 @@ This project showcases secure automation workflows, dynamic token handling, and 
 ```
 Developer Push
       ↓
-GitLab Pipeline Triggered
+GitHub Actions Pipeline Triggered
       ↓
 CI Runner (Node Docker Image)
       ↓
@@ -41,7 +41,7 @@ Assertions + Validation
       ↓
 Reports Generated
    ├── HTML Evidence Report
-   ├── GitLab Test Analytics (JUnit)
+   ├── GitHub Test Analytics (JUnit)
    ├── JSON Metrics Output
    └── Allure Dashboard
 ```
@@ -50,8 +50,8 @@ Reports Generated
 
 ```
 postman-api-automation/
-├── .gitlab-ci.yml
-├── README.md
+├── .github/workflows/ci.yml
+├── README-GITHUB.md
 ├── package.json
 ├── .gitignore
 │
@@ -74,7 +74,12 @@ Install Newman:
 
 ```sh
 npm install -g newman
+npm install -g newman-reporter-htmlextra
+npm install -g newman-reporter-allure
+npm install -g allure-commandline
 ```
+
+`junit` is a built-in Newman reporter, so there is no `newman-reporter-junit` package to install.
 
 Run collection locally:
 
@@ -83,11 +88,11 @@ newman run tests/bookstore.postman_collection.json \
 -e tests/qa.postman_environment.json
 ```
 
-## ⚙️ GitLab CI/CD Pipeline
+## ⚙️ GitHub Actions CI/CD Pipeline
 
 Pipeline automatically executes when:
 - Code is pushed
-- Merge Requests are created
+- Pull Requests are created
 
 Pipeline performs:
 - Newman installation
@@ -102,12 +107,12 @@ The pipeline generates multiple reporting formats similar to large fintech and s
 ### ✅ HTML Evidence Report
 - **Location:** `reports/newman-report.html`
 - **Includes:** Request details, Response payloads, Assertion results, Failure diagnostics
-- **Download via:** Pipeline → Job → Artifacts
+- **Download via:** Workflow run → Artifacts
 
-### ✅ GitLab Test Analytics (JUnit)
-- **JUnit reporting enables native GitLab visibility.**
+### ✅ GitHub Test Analytics (JUnit)
+- **JUnit reporting enables native GitHub visibility.**
 - **Displays:** Passed Tests, Failed Tests, Execution Duration
-- **Accessible inside:** CI/CD → Job → Tests Tab
+- **Accessible inside:** Actions → Workflow run → Test Report
 
 ### ✅ JSON Metrics Output
 - **Machine-readable reporting:** `reports/result.json`
@@ -117,7 +122,7 @@ The pipeline generates multiple reporting formats similar to large fintech and s
 - **Generated automatically during pipeline execution.**
 - **Provides:** Visual test analytics, Trend analysis, Failure grouping, Historical debugging insights
 - **Artifact:** `allure-report/`
-- **Download from pipeline artifacts.**
+- **Download from workflow artifacts.**
 
 ## 🔐 Dynamic Runtime Secrets
 
@@ -136,7 +141,7 @@ pm.environment.set("tokenExpiry", body.expires);
 Secrets may rotate periodically without requiring repository changes.
 
 **Security Practices:**
-- Masked GitLab Variables
+- Masked GitHub Secrets
 - No credentials stored in Git history
 - Environment-driven execution
 
