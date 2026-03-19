@@ -100,6 +100,8 @@ Pipeline performs:
 - Assertion validation
 - Multi-format report generation
 
+GitHub Pages deployment is opt-in. Set the repository variable `ENABLE_GITHUB_PAGES=true` only after Pages has been enabled in the repository settings and configured for GitHub Actions.
+
 ## 📊 Advanced Reporting (Enterprise Setup)
 
 The pipeline generates multiple reporting formats similar to large fintech and streaming platform QA workflows.
