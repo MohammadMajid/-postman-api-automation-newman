@@ -59,7 +59,7 @@ pages:
       - public/
     expire_in: 1 week
   rules:
-    - if: '$CI_COMMIT_BRANCH == "main" && $ENABLE_GITLAB_PAGES == "true"'
+    - if: '$CI_COMMIT_BRANCH == "main"'
 
 email_report:
   stage: notify
@@ -123,7 +123,7 @@ email_report:
           server.send_message(message)
       PY
   rules:
-    - if: '$CI_COMMIT_BRANCH == "main" && $ENABLE_GITLAB_PAGES == "true" && $ENABLE_REPORT_EMAIL == "true" && $SMTP_SERVER != null && $SMTP_PORT != null && $SMTP_USERNAME != null && $SMTP_PASSWORD != null'
+    - if: '$CI_COMMIT_BRANCH == "main" && $ENABLE_REPORT_EMAIL == "true" && $SMTP_SERVER != null && $SMTP_PORT != null && $SMTP_USERNAME != null && $SMTP_PASSWORD != null'
   artifacts:
     when: always
     paths:

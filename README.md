@@ -122,9 +122,7 @@ Pipeline performs:
 
 GitLab test results are published from `reports/junit-report.xml` and can be viewed in the pipeline test report UI.
 
-GitLab Pages deployment is opt-in. Enable GitLab Pages for the project, then set this CI/CD variable before expecting the `pages` job to run:
-
-- `ENABLE_GITLAB_PAGES=true`
+GitLab Pages deployment runs automatically on the `main` branch after the test job succeeds.
 
 When the `pages` job runs successfully, the generated Allure site is published from `public/` and is viewable from the GitLab Pages URL exposed by the pipeline as `CI_PAGES_URL`. In GitLab, you can also open it from **Deploy → Pages** for the project.
 
