@@ -1,0 +1,8 @@
+{
+  "name": "postman-api-automation",
+  "version": "1.0.0",
+  "description": "Postman Newman GitLab CI Automation",
+  "scripts": {
+    "test": "newman run tests/bookstore.postman_collection.json -e tests/qa.postman_environment.json"
+  }
+}
