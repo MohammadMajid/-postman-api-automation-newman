@@ -45,11 +45,15 @@ api_tests:
 
 pages:
   stage: deploy
+  pages: true
   needs:
     - job: api_tests
       artifacts: true
   script:
-    - test -d public
+    - test -f public/index.html
+  environment:
+    name: gitlab-pages
+    url: $CI_PAGES_URL
   artifacts:
     paths:
       - public/

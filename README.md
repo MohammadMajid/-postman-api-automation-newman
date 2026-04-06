@@ -126,6 +126,8 @@ GitLab Pages deployment is opt-in. Enable GitLab Pages for the project, then set
 
 - `ENABLE_GITLAB_PAGES=true`
 
+When the `pages` job runs successfully, the generated Allure site is published from `public/` and is viewable from the GitLab Pages URL exposed by the pipeline as `CI_PAGES_URL`. In GitLab, you can also open it from **Deploy → Pages** for the project.
+
 Automated report email is also opt-in for GitLab. Configure these CI/CD variables before enabling it:
 
 - Required variables:
