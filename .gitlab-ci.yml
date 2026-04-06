@@ -1,0 +1,127 @@
+workflow:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push"'
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+
+stages:
+  - test
+  - deploy
+  - notify
+
+default:
+  image: node:18-bullseye
+
+variables:
+  DEBIAN_FRONTEND: noninteractive
+
+api_tests:
+  stage: test
+  before_script:
+    - apt-get update
+    - apt-get install -y --no-install-recommends openjdk-17-jre-headless ca-certificates
+    - npm install -g newman newman-reporter-htmlextra newman-reporter-allure allure-commandline
+  script:
+    - mkdir -p reports allure-results public
+    - |
+      newman run bookstore.postman_collection.json \
+        -e qa.postman_environment.json \
+        --reporters cli,htmlextra,junit,allure \
+        --reporter-htmlextra-export reports/newman-report.html \
+        --reporter-junit-export reports/junit-report.xml \
+        --reporter-allure-export allure-results || true
+    - allure generate allure-results --clean -o public || true
+  artifacts:
+    when: always
+    paths:
+      - reports/
+      - public/
+      - allure-results/
+    reports:
+      junit: reports/junit-report.xml
+    expire_in: 1 week
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push"'
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+
+pages:
+  stage: deploy
+  needs:
+    - job: api_tests
+      artifacts: true
+  script:
+    - test -d public
+  artifacts:
+    paths:
+      - public/
+    expire_in: 1 week
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main" && $ENABLE_GITLAB_PAGES == "true"'
+
+email_report:
+  stage: notify
+  needs:
+    - job: pages
+      artifacts: true
+  before_script:
+    - apt-get update
+    - apt-get install -y --no-install-recommends python3 zip
+  script:
+    - zip -r allure-report.zip public
+    - |
+      python3 <<'PY'
+      import os
+      import smtplib
+      from email.message import EmailMessage
+
+      smtp_server = os.environ["SMTP_SERVER"]
+      smtp_port = int(os.environ["SMTP_PORT"])
+      smtp_username = os.environ["SMTP_USERNAME"]
+      smtp_password = os.environ["SMTP_PASSWORD"]
+      report_email_to = os.environ.get("REPORT_EMAIL_TO", "mohammadnafiulmajid@gmail.com")
+      report_email_from = os.environ.get("REPORT_EMAIL_FROM", smtp_username)
+      pages_url = os.environ.get("CI_PAGES_URL", "")
+      project_path = os.environ.get("CI_PROJECT_PATH", "")
+      pipeline_id = os.environ.get("CI_PIPELINE_ID", "")
+      job_url = os.environ.get("CI_JOB_URL", "")
+
+      message = EmailMessage()
+      message["Subject"] = f"API Automation Report - {project_path} - Pipeline #{pipeline_id}"
+      message["From"] = report_email_from
+      message["To"] = report_email_to
+      message.set_content(
+          "API automation execution completed successfully.\n"
+          f"Project: {project_path}\n"
+          f"Pipeline: #{pipeline_id}\n"
+          f"Allure report: {pages_url or 'Not published'}\n"
+          f"Job details: {job_url}\n"
+      )
+      message.add_alternative(
+          """
+          <p>API automation execution completed successfully.</p>
+          <p><strong>Project:</strong> {project_path}</p>
+          <p><strong>Pipeline:</strong> #{pipeline_id}</p>
+          <p><strong>Allure report:</strong> <a href="{pages_url}">{pages_url}</a></p>
+          <p><strong>Job details:</strong> <a href="{job_url}">{job_url}</a></p>
+          """.format(project_path=project_path, pipeline_id=pipeline_id, pages_url=pages_url, job_url=job_url),
+          subtype="html",
+      )
+
+      with open("allure-report.zip", "rb") as attachment:
+          message.add_attachment(
+              attachment.read(),
+              maintype="application",
+              subtype="zip",
+              filename="allure-report.zip",
+          )
+
+      with smtplib.SMTP_SSL(smtp_server, smtp_port) as server:
+          server.login(smtp_username, smtp_password)
+          server.send_message(message)
+      PY
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main" && $ENABLE_GITLAB_PAGES == "true" && $ENABLE_REPORT_EMAIL == "true" && $SMTP_SERVER != null && $SMTP_PORT != null && $SMTP_USERNAME != null && $SMTP_PASSWORD != null'
+  artifacts:
+    when: always
+    paths:
+      - allure-report.zip
+    expire_in: 1 week
