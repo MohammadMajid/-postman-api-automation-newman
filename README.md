@@ -10,6 +10,7 @@ This project showcases secure automation workflows, dynamic token handling, and 
 - ✅ Automated API Validation using Postman Collections
 - ✅ GitHub Actions CI/CD Pipeline Execution
 - ✅ GitLab CI/CD Pipeline Execution
+- ✅ Jenkins Pipeline Execution
 - ✅ Dynamic Token Management
 - ✅ Secure Secrets Handling
 - ✅ HTML Evidence Reporting
@@ -23,6 +24,7 @@ This project showcases secure automation workflows, dynamic token handling, and 
 - Newman CLI
 - GitHub Actions
 - GitLab CI/CD
+- Jenkins
 - NodeJS
 - JavaScript
 - Allure Reporting
@@ -55,6 +57,7 @@ postman-api-automation/
 ├── .github/workflows/ci.yml
 ├── .gitlab-ci.yml
 ├── .gitignore
+├── Jenkinsfile
 ├── README.md
 ├── bookstore.postman_collection.json
 └── qa.postman_environment.json
@@ -142,6 +145,24 @@ When enabled on the `main` branch:
 - `api_tests` always runs for push and merge request pipelines
 - `pages` publishes the generated Allure site from `public/`
 - `email_report` sends a zipped copy of the Allure report as an attachment
+
+## ⚙️ Jenkins Pipeline
+
+The Jenkins pipeline is defined in `Jenkinsfile` and is designed for a standard Declarative Pipeline job or Multibranch Pipeline.
+
+Pipeline performs:
+- Workspace checkout from SCM
+- Newman and reporter installation
+- API execution with JUnit, HTML Extra, and Allure outputs
+- Artifact archiving for `reports/`, `allure-results/`, and `public/`
+- JUnit publishing for Jenkins test trend visibility
+
+Jenkins agent prerequisites:
+- Node.js and npm available on the agent
+- Java 17 or later available on the agent for Allure generation
+- Permission to install global npm packages during the build
+
+The build archives reports even when tests fail, then marks the pipeline failed after publishing the results.
 
 ## 📊 Advanced Reporting (Enterprise Setup)
 
